@@ -55,6 +55,50 @@ const getByIdOptionsSchema = Joi.object({
   id: Joi.string().required(),
 });
 
+export interface UserGetByGithubIdOptions {
+  githubId: string;
+}
+
+const getByGithubIdOptionsSchema = Joi.object({
+  githubId: Joi.string().required(),
+}).required();
+
+export interface UserUpdateByIdOptions {
+  id: string;
+  name?: string;
+  email?: string;
+  profileImage?: string;
+  bio?: string;
+  website?: string;
+}
+
+const updateByIdOptionsSchema = Joi.object({
+  id: Joi.string().required(),
+  name: Joi.string().optional(),
+  email: Joi.string().optional(),
+  profileImage: Joi.string().optional(),
+  bio: Joi.string().optional(),
+  website: Joi.string().optional(),
+})
+  .or('name', 'email', 'profileImage', 'bio', 'webpage')
+  .required();
+
+export interface UserAddOptions {
+  id: string;
+  githubId: string;
+  name: string;
+  email: string;
+  profileImage?: string;
+}
+
+const addOptionsSchema = Joi.object({
+  id: Joi.string().required(),
+  githubId: Joi.string().required(),
+  name: Joi.string().required(),
+  email: Joi.string().required(),
+  profileImage: Joi.string().optional(),
+}).required();
+
 UserModel.init(
   {
     id: {
@@ -114,7 +158,7 @@ export class User {
     return data;
   }
 
-  async getById(options: UserGetByIdOptions): Promise<User | undefined> {
+  async getById(options: UserGetByIdOptions): Promise<IUser | undefined> {
     const params = await getByIdOptionsSchema.validateAsync(options, {
       stripUnknown: true,
     });
@@ -133,12 +177,44 @@ export class User {
     return User.toUser(user.get({plain: true}));
   }
 
-  async getByGithubId() {
-    throw new Error('nothing');
+  async getByGithubId(
+    options: UserGetByGithubIdOptions
+  ): Promise<IUser | undefined> {
+    const params = await getByGithubIdOptionsSchema.validateAsync(options, {
+      stripUnknown: true,
+    });
+
+    const user = await UserModel.findOne({
+      where: {
+        githubId: params.githubId,
+      },
+      logging: false,
+    });
+
+    if (!user) {
+      return undefined;
+    }
+
+    return User.toUser(user.get({plain: true}));
   }
 
-  async updateById() {
-    throw new Error('nothing');
+  async updateById(options: UserUpdateByIdOptions): Promise<IUser | undefined> {
+    const params = (await updateByIdOptionsSchema.validateAsync(options, {
+      stripUnknown: true,
+    })) as UserUpdateByIdOptions;
+
+    const [count] = await UserModel.update(params, {
+      where: {
+        id: params.id,
+      },
+      logging: false,
+    });
+
+    if (count < 1) {
+      throw new Error(`Could not update user with id "${params.id}"`);
+    }
+
+    return this.getById({id: params.id});
   }
 
   async create() {

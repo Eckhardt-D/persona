@@ -8,7 +8,7 @@ const database = new Sequelize({
 
 export const connect = async (db: Sequelize) => {
   try {
-    await db.authenticate();
+    await db.authenticate({logging: false});
     return true;
   } catch ({message}) {
     throw Error('Database connect error: ' + message);

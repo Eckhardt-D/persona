@@ -1,1 +1,1 @@
-console.log('Hello API!');
+export * from './users';

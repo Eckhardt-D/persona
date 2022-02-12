@@ -1,7 +1,7 @@
 import {Sequelize} from 'sequelize';
 import {join} from 'path';
 
-const database = new Sequelize({
+export const database = new Sequelize({
   dialect: 'sqlite',
   storage: join(__dirname, './data/db.sqlite'),
 });
@@ -22,4 +22,3 @@ export const disconnect = async (db: Sequelize) => {
     throw Error('Database disconnect error: ' + message);
   }
 };
-export default database;

@@ -6,7 +6,7 @@ import {
   InferCreationAttributes,
   CreationOptional,
 } from 'sequelize';
-import database from './database';
+import {database} from './database';
 
 export class UserModel extends Model<
   InferAttributes<UserModel>,
@@ -26,14 +26,34 @@ export class UserModel extends Model<
 const databaseUserSchema = Joi.object({
   id: Joi.string().required(),
   name: Joi.string().required(),
-  email: Joi.string().email(),
+  email: Joi.string().email().required(),
   githubId: Joi.string().required(),
-  bio: Joi.string().default(null),
-  website: Joi.string().uri().default(null),
-  profileImage: Joi.string().uri().default(null),
+  bio: Joi.string().allow(null),
+  website: Joi.string().uri().allow(null),
+  profileImage: Joi.string().uri().allow(null),
   createdAt: Joi.date().required(),
   updatedAt: Joi.date().required(),
 }).required();
+
+export interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  githubId: string;
+  bio: string | null;
+  website: string | null;
+  profileImage: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserGetByIdOptions {
+  id: string;
+}
+
+const getByIdOptionsSchema = Joi.object({
+  id: Joi.string().required(),
+});
 
 UserModel.init(
   {
@@ -75,8 +95,10 @@ UserModel.init(
 );
 
 export class User {
-  static async toUser(user: UserModel) {
-    const validatedUser = await databaseUserSchema.validateAsync(user);
+  static async toUser(user: InferAttributes<UserModel>) {
+    const validatedUser = await databaseUserSchema.validateAsync(user, {
+      stripUnknown: true,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = {};
 
@@ -89,12 +111,26 @@ export class User {
     data.createdAt = validatedUser.createdAt;
     data.updatedAt = validatedUser.updatedAt;
     data.profileImage = validatedUser.profileImage || null;
-
     return data;
   }
 
-  async getById() {
-    throw new Error('nothing');
+  async getById(options: UserGetByIdOptions): Promise<User | undefined> {
+    const params = await getByIdOptionsSchema.validateAsync(options, {
+      stripUnknown: true,
+    });
+
+    const user = await UserModel.findOne({
+      where: {
+        id: params.id,
+      },
+      logging: false,
+    });
+
+    if (!user) {
+      return undefined;
+    }
+
+    return User.toUser(user.get({plain: true}));
   }
 
   async getByGithubId() {

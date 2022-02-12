@@ -1,4 +1,4 @@
-import database, {connect, disconnect} from './database';
+import {database, connect, disconnect} from './database';
 
 describe('database', () => {
   it('connects successfully', async () => {

@@ -108,6 +108,7 @@ UserModel.init(
     githubId: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -116,6 +117,7 @@ UserModel.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     bio: {
       type: DataTypes.STRING,
@@ -203,21 +205,41 @@ export class User {
       stripUnknown: true,
     })) as UserUpdateByIdOptions;
 
-    const [count] = await UserModel.update(params, {
-      where: {
-        id: params.id,
-      },
-      logging: false,
-    });
+    try {
+      const [count] = await UserModel.update(params, {
+        where: {
+          id: params.id,
+        },
+        logging: false,
+      });
 
-    if (count < 1) {
-      throw new Error(`Could not update user with id "${params.id}"`);
+      if (count < 1) {
+        throw new Error(`Could not update user with id "${params.id}"`);
+      }
+
+      return this.getById({id: params.id});
+    } catch ({message, name, errors}) {
+      if (name === 'SequelizeUniqueConstraintError') {
+        throw new Error((errors as {message: string}[])[0].message);
+      }
+
+      throw new Error(message as string);
     }
-
-    return this.getById({id: params.id});
   }
 
-  async create() {
-    throw new Error('nothing');
+  async create(options: UserAddOptions): Promise<IUser> {
+    const params = (await addOptionsSchema.validateAsync(options, {
+      stripUnknown: true,
+    })) as UserAddOptions;
+
+    try {
+      const result = await UserModel.create(params);
+      return User.toUser(result.get({plain: true}));
+    } catch ({name, errors}) {
+      if (name === 'SequelizeUniqueConstraintError') {
+        throw new Error((errors as {message: string}[])[0].message);
+      }
+      throw new Error('failed to create user');
+    }
   }
 }

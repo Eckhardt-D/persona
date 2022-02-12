@@ -1,0 +1,39 @@
+{
+  "name": "persona",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": "true",
+  "workspaces": [
+    "api",
+    "app",
+    "entities",
+    "www"
+  ],
+  "scripts": {
+    "test": "yarn workspaces run test",
+    "dev": "concurrently \"yarn:build:watch\" \"yarn dev:app\" \"yarn dev:www\" \"yarn dev:api\"",
+    "dev:app": "yarn workspace @persona/app run dev",
+    "dev:api": "yarn workspace @persona/api run dev",
+    "dev:www": "yarn workspace @persona/www run dev",
+    "build:watch": "concurrently \"yarn build:watch:entities\" \"yarn build:watch:www\" \"yarn build:watch:api\"",
+    "build:watch:api": "yarn workspace @persona/api run compile:watch",
+    "build:watch:entities": "yarn workspace @persona/entities run compile:watch",
+    "build:watch:www": "yarn workspace @persona/www run compile:watch",
+    "build": "concurrently \"yarn build:app\" \"yarn build:entities\" \"yarn build:www\" \"yarn build:api\"",
+    "build:app": "yarn workspace @persona/app run build",
+    "build:api": "yarn workspace @persona/api run compile",
+    "build:entities": "yarn workspace @persona/entities run compile",
+    "build:www": "yarn workspace @persona/www run compile",
+    "start": "pm2 start ecosystem.config.js",
+    "lint": "yarn workspaces run lint",
+    "fix": "yarn workspaces run fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
+}

@@ -11,7 +11,7 @@
     "www"
   ],
   "scripts": {
-    "test": "yarn workspaces run test",
+    "test": "yarn workspace @persona/entities run test",
     "dev": "concurrently \"yarn:build:watch\" \"yarn dev:app\" \"yarn dev:www\" \"yarn dev:api\"",
     "dev:app": "yarn workspace @persona/app run dev",
     "dev:api": "yarn workspace @persona/api run dev",

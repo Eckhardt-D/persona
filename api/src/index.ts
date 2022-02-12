@@ -17,7 +17,7 @@ const opts: RouteShorthandOptions = {
   },
 };
 
-server.get('/', opts, async (request, reply) => {
+server.get('/', opts, async () => {
   return {pong: 'It worked!'};
 });
 
@@ -29,7 +29,7 @@ const start = async () => {
     // const port = typeof address === 'string' ? address : address?.port;
   } catch (error) {
     server.log.error(error);
-    process.exit(1);
+    throw error;
   }
 };
 

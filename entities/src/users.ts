@@ -1,27 +1,9 @@
 import Joi from 'joi';
-import {
-  DataTypes,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  CreationOptional,
-} from 'sequelize';
+import {InferAttributes} from 'sequelize';
+import {createUserModel, UserModel} from '@persona/db-manager';
 import {database} from './database';
 
-export class UserModel extends Model<
-  InferAttributes<UserModel>,
-  InferCreationAttributes<UserModel>
-> {
-  declare id: string;
-  declare name: string;
-  declare email: string;
-  declare githubId: string;
-  declare bio: CreationOptional<string>;
-  declare website: CreationOptional<string>;
-  declare profileImage: CreationOptional<string>;
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-}
+createUserModel(database);
 
 const databaseUserSchema = Joi.object({
   id: Joi.string().required(),
@@ -92,53 +74,12 @@ export interface UserAddOptions {
 }
 
 const addOptionsSchema = Joi.object({
-  id: Joi.string().required(),
+  id: Joi.string().uuid({version: 'uuidv4'}).required(),
   githubId: Joi.string().required(),
   name: Joi.string().required(),
-  email: Joi.string().required(),
-  profileImage: Joi.string().optional(),
+  email: Joi.string().email().required(),
+  profileImage: Joi.string().uri().optional(),
 }).required();
-
-UserModel.init(
-  {
-    id: {
-      type: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-    githubId: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    bio: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    website: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-    profileImage: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-  },
-  {
-    tableName: 'users',
-    sequelize: database,
-  }
-);
 
 export class User {
   static async toUser(user: InferAttributes<UserModel>) {

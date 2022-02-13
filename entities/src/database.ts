@@ -1,19 +1,21 @@
 import {Sequelize} from 'sequelize';
-import {join} from 'path';
+import {dbPath} from './configs/db.config';
 
 export const database = new Sequelize({
   dialect: 'sqlite',
-  storage: join(__dirname, './data/db.sqlite'),
+  storage: dbPath(),
 });
 
 export const connect = async (db: Sequelize) => {
   try {
+    await db.sync();
     await db.authenticate({logging: false});
     return true;
   } catch ({message}) {
     throw Error('Database connect error: ' + message);
   }
 };
+
 export const disconnect = async (db: Sequelize) => {
   try {
     await db.close();

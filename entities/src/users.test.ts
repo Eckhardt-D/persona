@@ -1,10 +1,11 @@
-import {User, UserModel} from '.';
+import {User} from '.';
+import {createUserModel, UserModel} from '@persona/db-manager';
 import {database, connect, disconnect} from './database';
 import {v4 as uuid} from 'uuid';
 
 beforeAll(async () => {
+  createUserModel(database);
   await connect(database);
-  await UserModel.sync({logging: false});
 });
 
 afterAll(async () => {

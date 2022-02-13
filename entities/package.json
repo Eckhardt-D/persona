@@ -11,11 +11,11 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "test": "jest",
+    "test": "cross-env NODE_ENV=test jest",
     "lint": "eslint --ext \".js,.ts\" .",
     "clean": "gts clean",
-    "compile:watch": "tsc -w",
-    "compile": "tsc",
+    "compile:watch": "cross-env NODE_ENV=development tsc -w",
+    "compile": "cross-env NODE_ENV=production tsc",
     "fix": "yarn lint --fix",
     "posttest": "yarn lint"
   },
@@ -23,6 +23,7 @@
     "@types/jest": "^27.4.0",
     "@types/node": "^14.11.2",
     "@types/uuid": "^8.3.4",
+    "@types/validator": "^13.7.1",
     "eslint-plugin-prettier": "^4.0.0",
     "gts": "^3.1.0",
     "jest": "^27.5.1",
@@ -30,6 +31,9 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "@persona/db-manager": "1.0.0",
+    "cross-env": "^7.0.3",
+    "env-paths": "^2.2.1",
     "firebase-admin": "^10.0.2",
     "joi": "^17.6.0",
     "sequelize": "^6.16.1",

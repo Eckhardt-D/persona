@@ -25,6 +25,8 @@
   "scripts": {
     "compile": "yarn clean && tsc",
     "clean": "gts clean",
+    "lint": "eslint --ext \".js,.ts\" .",
+    "fix": "yarn lint --fix",
     "migrations:up": "yarn compile && sequelize db:migrate --env \"production\"",
     "migrations:down": "yarn compile && sequelize db:migrate:undo:all --env \"production\"",
     "migrations:up:dev": "yarn compile && sequelize db:migrate --env \"development\"",

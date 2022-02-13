@@ -1,87 +1,102 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
-        <NuxtLogo />
-        <VuetifyLogo />
-      </v-card>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
+  <v-container fluid>
+    <v-row class="page-title__contain">
+      <v-col cols="12">
+        <h1 class="page-title">Dashboard</h1>
+
+        <p class="page-description">
+          Persona is a tool to generate a public profile page which you can
+          point your own domain to with HTTPS automatically enabled 🤓. Tell the
+          world about yourself and share your public page everywhere 🚀.
+        </p>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12" class="mx-auto">
+        <v-card elevation="0" class="pa-10 form-contain">
+          <v-form ref="form" v-model="formOptions.valid">
+            <v-form-edit-mode v-if="formOptions.editMode" />
+            <v-form-default-mode v-else />
+          </v-form>
+          <v-card-actions>
+            <v-btn
+              v-if="!formOptions.editMode"
+              class="ml-auto"
+              color="primary"
+              outlined
+              small
+              @click="formOptions.editMode = !formOptions.editMode"
+              >Edit</v-btn
             >
-              documentation </a
-            >.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
+            <v-btn
+              v-if="formOptions.editMode"
+              outlined
+              small
+              class="ml-auto"
+              @click="formOptions.editMode = false"
+              >Cancel</v-btn
             >
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3" />
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br />
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire"> Continue </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
-<script>
-export default {
-  name: 'IndexPage',
+<script lang="ts">
+import Vue from 'vue'
+
+type InputRule = (value: string) => boolean | string
+
+interface FormOptions {
+  editMode: boolean
+  valid: boolean
+  rules: {
+    name: InputRule[]
+    website: InputRule[]
+    bio: InputRule[]
+  }
 }
+
+export default Vue.extend({
+  name: 'DashboardPage',
+  data: () => ({
+    formOptions: {
+      editMode: false,
+      valid: true,
+      rules: {
+        name: [],
+        website: [],
+        bio: [],
+      },
+    } as FormOptions,
+  }),
+})
 </script>
+
+<style>
+.page-title__contain {
+  padding: 1rem 0;
+}
+
+.page-title {
+  font-weight: 500;
+}
+
+.form-contain {
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+}
+
+.form-section {
+  display: flex;
+  align-items: center;
+}
+
+.form-section--noflex {
+  display: block;
+}
+
+.profile-bio {
+  text-align: justify;
+}
+</style>

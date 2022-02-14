@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "app",
       script: "./node_modules/nuxt/bin/nuxt.js",
-      cwd: "./app",
+      cwd: "./packages/app",
       instances: 2,
       exec_mode: "cluster",
       args: "start",
@@ -11,14 +11,14 @@ module.exports = {
     {
       name: "api",
       script: "./build/src/index.js",
-      cwd: "./api",
+      cwd: "./packages/api",
       instances: 2,
       exec_mode: "cluster",
     },
     {
       name: "www",
       script: "./build/src/index.js",
-      cwd: "./www",
+      cwd: "./packages/www",
       instances: 2,
       exec_mode: "cluster",
     },

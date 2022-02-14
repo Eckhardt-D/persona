@@ -52,7 +52,7 @@ export default Vue.extend({
         hasFile: false,
         file: null,
         imageUrl: '/avatar.jpg'
-      }
+      } as Avatar
     },
     options: {
       avatar: {
@@ -72,16 +72,21 @@ export default Vue.extend({
         return this.options.avatar.imageUrl
       },
       set(value: Event) {
-        const files: FileList | null = (<HTMLInputElement>value.target).files;
-        const file = files && files[0];
+        const files: FileList = (value.target as HTMLInputElement).files;
 
-        if (file) {
+        if (files && files[0]) {
+          const file = files[0]
           const url: string = URL.createObjectURL(file);
           
           this.options.avatar.hasFile = true;
           this.options.avatar.file = file;
           this.options.avatar.imageUrl = url;
+          return;
         }
+
+        this.options.avatar.hasFile = false;
+        this.options.avatar.file = null;
+        this.options.avatar.imageUrl = '/avatar.jpg'
       }
     }
   },

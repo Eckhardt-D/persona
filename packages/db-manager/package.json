@@ -1,0 +1,40 @@
+{
+  "name": "@persona/db-manager",
+  "version": "1.0.0",
+  "main": "build/src/index.js",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">= 14"
+  },
+  "files": [
+    "build/src/migrations/*.js",
+    "build/src/seeders/*.js"
+  ],
+  "dependencies": {
+    "@persona/common": "^1.0.0",
+    "cross-env": "^7.0.3",
+    "sequelize": "^6.16.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "gts": "^3.1.0",
+    "sequelize-cli": "^6.4.1",
+    "typescript": "^4.0.3"
+  },
+  "scripts": {
+    "dev": "tsc -w --preserveWatchOutput",
+    "compile": "yarn clean && tsc",
+    "clean": "gts clean",
+    "lint": "eslint --ext \".js,.ts\" .",
+    "fix": "yarn lint --fix",
+    "migrations:up": "yarn compile && sequelize db:migrate --env \"production\"",
+    "migrations:down": "yarn compile && sequelize db:migrate:undo:all --env \"production\"",
+    "migrations:up:dev": "yarn compile && sequelize db:migrate --env \"development\"",
+    "migrations:down:dev": "yarn compile && sequelize db:migrate:undo:all --env \"development\"",
+    "migrations:up:test": "yarn compile && sequelize db:migrate --env \"test\"",
+    "migrations:down:test": "yarn compile && sequelize db:migrate:undo:all --env \"test\"",
+    "migration:create": "sequelize migration:create",
+    "model:generate": "sequelize model:generate"
+  }
+}

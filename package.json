@@ -1,47 +1,17 @@
 {
-  "name": "persona",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "private": "true",
+  "name": "@persona/root",
   "workspaces": [
-    "api",
-    "app",
-    "entities",
-    "db-manager",
-    "www"
+    "packages/*"
   ],
   "scripts": {
-    "test": "cross-env NODE_ENV=test yarn w:db run migrations:down:test && yarn w:db run migrations:up:test && cross-env NODE_ENV=test yarn workspace @persona/entities run test",
-    "dev": "cross-env NODE_ENV=development yarn w:db run migrations:up:dev && cross-env NODE_ENV=development concurrently \"yarn:build:watch\" \"yarn dev:app\" \"yarn dev:www\" \"yarn dev:api\"",
-    "dev:app": "yarn workspace @persona/app run dev",
-    "dev:api": "yarn workspace @persona/api run dev",
-    "dev:www": "yarn workspace @persona/www run dev",
-    "build:watch": "concurrently \"yarn build:watch:entities\" \"yarn build:watch:www\" \"yarn build:watch:api\"",
-    "build:watch:api": "yarn workspace @persona/api run compile:watch",
-    "build:watch:entities": "yarn workspace @persona/entities run compile:watch",
-    "build:watch:www": "yarn workspace @persona/www run compile:watch",
-    "build": "cross-env NODE_ENV=production yarn w:db run migrations:up && concurrently \"yarn build:app\" \"yarn build:entities\" \"yarn build:www\" \"yarn build:api\"",
-    "build:app": "cross-env NODE_ENV=production yarn workspace @persona/app run build",
-    "build:api": "cross-env NODE_ENV=production yarn workspace @persona/api run compile",
-    "build:entities": "cross-env NODE_ENV=production yarn workspace @persona/entities run compile",
-    "build:www": "cross-env NODE_ENV=production yarn workspace @persona/www run compile",
-    "lint": "yarn workspaces run lint",
-    "fix": "yarn workspaces run fix",
-    "w:entities": "yarn workspace @persona/entities",
-    "w:www": "yarn workspace @persona/www",
-    "w:api": "yarn workspace @persona/api",
-    "w:app": "yarn workspace @persona/app",
-    "w:db": "yarn workspace @persona/db-manager",
-    "start": "cross-env NODE_ENV=production pm2 start ecosystem.config.js"
+    "test": "cross-env NODE_ENV=test yarn build:core && cross-env NODE_ENV=test lerna run migrations:up:test && lerna run test",
+    "build:core": "lerna run compile",
+    "build": "yarn build:core && lerna run build",
+    "dev": "cross-env NODE_ENV=development lerna run migrations:up:dev && lerna run dev --parallel",
+    "start": "cross-env NODE_ENV=production lerna run migrations:up && pm2 start ecosystem.config.js --env production"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cross-env": "^7.0.3"
-  },
+  "private": true,
   "devDependencies": {
-    "concurrently": "^7.0.0"
+    "lerna": "^3.22.1"
   }
 }

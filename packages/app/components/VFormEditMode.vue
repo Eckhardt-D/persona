@@ -72,7 +72,7 @@ export default Vue.extend({
         return this.options.avatar.imageUrl
       },
       set(value: Event) {
-        const files: FileList = (value.target as HTMLInputElement).files;
+        const files: FileList | null = (value.target as HTMLInputElement).files;
 
         if (files && files[0]) {
           const file = files[0]

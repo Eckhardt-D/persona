@@ -7,6 +7,9 @@ module.exports = {
       instances: 2,
       exec_mode: "cluster",
       args: "start",
+      env_production: {
+        NODE_ENV: "production",
+      }
     },
     {
       name: "api",
@@ -14,6 +17,9 @@ module.exports = {
       cwd: "./packages/api",
       instances: 2,
       exec_mode: "cluster",
+      env_production: {
+        NODE_ENV: "production",
+      }
     },
     {
       name: "www",
@@ -21,6 +27,9 @@ module.exports = {
       cwd: "./packages/www",
       instances: 2,
       exec_mode: "cluster",
+      env_production: {
+        NODE_ENV: "production",
+      },
     },
   ],
 };

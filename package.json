@@ -4,8 +4,9 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "cross-env NODE_ENV=test yarn build:core && cross-env NODE_ENV=test lerna run migrations:up:test && lerna run test",
+    "test": "cross-env NODE_ENV=test lerna run migrations:up:test && yarn test:all",
     "build:core": "lerna run compile",
+    "test:all": "cross-env NODE_ENV=test yarn workspace @persona/entities run test && cross-env NODE_ENV=test yarn workspace @persona/app run test",
     "build": "yarn build:core && lerna run build",
     "dev": "cross-env NODE_ENV=development lerna run migrations:up:dev && lerna run dev --parallel",
     "start": "cross-env NODE_ENV=production lerna run migrations:up && pm2 start ecosystem.config.js --env production"

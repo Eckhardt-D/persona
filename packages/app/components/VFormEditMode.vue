@@ -20,7 +20,13 @@
     </div>
     <div class="form-section--noflex mt-5">
       <h3 class="mb-2">Your story</h3>
-      <v-textarea v-model="options.bio" outlined label="Edit your bio"/>
+      <div class="text-right">
+        <v-btn text @click="preview = !preview">
+          Toggle preview
+        </v-btn>
+      </div>
+      <v-textarea v-if="!preview" v-model="options.bio" outlined label="Edit your bio"/>
+      <div v-else outlined disabled label="Preview mode" v-html="processedBio"/>
     </div>
   </main>
 </template>
@@ -28,6 +34,8 @@
 <script lang="ts">
 // @TODO: Refactor to store Form module.
 import Vue from 'vue'
+import markdown from 'markdown-it'
+import hljs from 'highlight.js'
 
 export interface Avatar {
   isHovering: boolean;
@@ -64,7 +72,8 @@ export default Vue.extend({
       bio: 'An outstanding developer, focusing on Lua.',
       name: 'John Doe-San',
       website: 'https://yoursite.com'
-    } as FormOptions
+    } as FormOptions,
+    preview: false,
   }),
   computed: {
     avatarSource: {
@@ -88,7 +97,22 @@ export default Vue.extend({
         this.options.avatar.file = null;
         this.options.avatar.imageUrl = '/avatar.jpg'
       }
-    }
+    },
+    processedBio(): string {
+      return markdown({
+        highlight (str: string, lang: string) {
+
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return '<pre class="hljs"><code>' +
+               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+               '</code></pre>';
+            } catch (__) {}
+          }
+          return '<pre class="hljs"><code>' + markdown.utils.escapeHtml(str) + '</code></pre>';
+        }
+      }).render(this.options.bio);
+    },
   },
   methods: {
     showUploadState() {

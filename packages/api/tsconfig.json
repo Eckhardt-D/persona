@@ -3,7 +3,9 @@
   "compilerOptions": {
     "rootDir": ".",
     "lib": ["DOM", "ES2018"],
-    "outDir": "build"
+    "outDir": "build",
+    "esModuleInterop": true,
+    "sourceMap": false
   },
   "include": ["src/**/*.ts"]
 }

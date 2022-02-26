@@ -1,4 +1,7 @@
+import { config } from 'dotenv'
 import colors from 'vuetify/es5/util/colors'
+
+config()
 
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -18,7 +21,7 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: ['../../node_modules/highlight.js/styles/mono-blue.css'],
+  css: ['../../node_modules/highlight.js/styles/monokai-sublime.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
@@ -48,6 +51,19 @@ export default {
     baseURL: '/',
   },
 
+  publicRuntimeConfig: {
+    github: {
+      auth_url: 'https://github.com/login/oauth/authorize',
+      client_id: process.env.GH_CLIENT_ID,
+      redirect_uri: process.env.GH_REDIRECT_URI,
+      scope: process.env.GH_SCOPE,
+      allow_signup: false,
+    },
+  },
+
+  router: {
+    middleware: ['authorize'],
+  },
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     customVariables: ['~/assets/variables.scss'],

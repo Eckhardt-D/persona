@@ -46,16 +46,9 @@
 <script lang="ts">
 import Vue from 'vue'
 
-type InputRule = (value: string) => boolean | string
-
 interface FormOptions {
   editMode: boolean
   valid: boolean
-  rules: {
-    name: InputRule[]
-    website: InputRule[]
-    bio: InputRule[]
-  }
 }
 
 export default Vue.extend({
@@ -64,11 +57,6 @@ export default Vue.extend({
     formOptions: {
       editMode: false,
       valid: true,
-      rules: {
-        name: [],
-        website: [],
-        bio: [],
-      },
     } as FormOptions,
   }),
 })

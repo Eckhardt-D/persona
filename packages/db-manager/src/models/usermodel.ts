@@ -14,6 +14,7 @@ export class UserModel extends Model<
 > {
   declare id: string;
   declare name: string;
+  declare username: string;
   declare email: string;
   declare githubId: string;
   declare bio: CreationOptional<string>;

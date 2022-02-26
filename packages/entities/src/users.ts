@@ -8,6 +8,7 @@ createUserModel(database);
 const databaseUserSchema = Joi.object({
   id: Joi.string().required(),
   name: Joi.string().required(),
+  username: Joi.string().required(),
   email: Joi.string().email().required(),
   githubId: Joi.string().required(),
   bio: Joi.string().allow(null),
@@ -20,6 +21,7 @@ const databaseUserSchema = Joi.object({
 export interface IUser {
   id: string;
   name: string;
+  username: string;
   email: string;
   githubId: string;
   bio: string | null;
@@ -48,6 +50,7 @@ const getByGithubIdOptionsSchema = Joi.object({
 export interface UserUpdateByIdOptions {
   id: string;
   name?: string;
+  username?: string;
   email?: string;
   profileImage?: string;
   bio?: string;
@@ -57,18 +60,20 @@ export interface UserUpdateByIdOptions {
 const updateByIdOptionsSchema = Joi.object({
   id: Joi.string().required(),
   name: Joi.string().optional(),
+  username: Joi.string().optional(),
   email: Joi.string().optional(),
   profileImage: Joi.string().optional(),
   bio: Joi.string().optional(),
   website: Joi.string().optional(),
 })
-  .or('name', 'email', 'profileImage', 'bio', 'webpage')
+  .or('name', 'email', 'profileImage', 'bio', 'webpage', 'username')
   .required();
 
 export interface UserAddOptions {
   id: string;
   githubId: string;
   name: string;
+  username: string;
   email: string;
   profileImage?: string;
 }
@@ -77,6 +82,7 @@ const addOptionsSchema = Joi.object({
   id: Joi.string().uuid({version: 'uuidv4'}).required(),
   githubId: Joi.string().required(),
   name: Joi.string().required(),
+  username: Joi.string().required(),
   email: Joi.string().email().required(),
   profileImage: Joi.string().uri().optional(),
 }).required();
@@ -93,6 +99,7 @@ export class User {
     data.githubId = validatedUser.githubId;
     data.name = validatedUser.name;
     data.email = validatedUser.email;
+    data.username = validatedUser.username;
     data.website = validatedUser.website || null;
     data.bio = validatedUser.bio || null;
     data.createdAt = validatedUser.createdAt;

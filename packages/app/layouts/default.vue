@@ -2,6 +2,8 @@
   <v-app>
     <v-app-bar elevation="0" fixed app class="px-10">
       <v-app-bar-title> Persona </v-app-bar-title>
+      <v-spacer></v-spacer>
+      <v-btn text color="error" @click="logout">logout</v-btn>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -17,10 +19,19 @@
   </v-app>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+import * as Cookie from 'js-cookie'
+
+export default Vue.extend({
   name: 'DefaultLayout',
-}
+  methods: {
+    logout() {
+      Cookie.remove('persona_token')
+      location.assign('/auth')
+    },
+  },
+})
 </script>
 
 <style>

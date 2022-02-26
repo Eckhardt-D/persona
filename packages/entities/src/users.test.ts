@@ -23,6 +23,7 @@ describe('getUserById', () => {
       {
         id,
         name: 'Test User',
+        username: 'TestUser',
         email: 'test@test.com',
         githubId: '12345678',
       },
@@ -44,6 +45,7 @@ describe('getUserById', () => {
     expect(user).toStrictEqual({
       id,
       name: 'Test User',
+      username: 'TestUser',
       email: 'test@test.com',
       githubId: '12345678',
       website: null,
@@ -70,6 +72,7 @@ describe('getByGitubId', () => {
       {
         id,
         name: 'Test User',
+        username: 'testuser',
         email: 'test@test.com',
         githubId: 'uniqueghid',
       },
@@ -91,6 +94,7 @@ describe('getByGitubId', () => {
     expect(user).toStrictEqual({
       id,
       name: 'Test User',
+      username: 'testuser',
       email: 'test@test.com',
       githubId: 'uniqueghid',
       website: null,
@@ -117,6 +121,7 @@ describe('updateById', () => {
       {
         id,
         name: 'Test User',
+        username: 'testuser',
         email: 'test@test.com',
         githubId: 'uniquegithubid2',
       },
@@ -138,6 +143,7 @@ describe('updateById', () => {
     expect(user).toStrictEqual({
       id,
       name: 'New Name',
+      username: 'testuser',
       email: 'test@test.com',
       githubId: 'uniquegithubid2',
       website: null,
@@ -176,6 +182,7 @@ describe('updateById', () => {
       id,
       name: 'new name',
       email: 'new@email.com',
+      username: 'testuser',
       githubId: 'uniquegithubid2',
       website: null,
       bio: null,
@@ -191,6 +198,7 @@ describe('updateById', () => {
         id,
         name: 'new name',
         email: 'new@email.com',
+        username: 'testuser2',
         website: 'https://site.com',
         bio: 'I does codes',
         profileImage: 'https://path.to.image.png',
@@ -199,6 +207,7 @@ describe('updateById', () => {
       id,
       name: 'new name',
       email: 'new@email.com',
+      username: 'testuser2',
       githubId: 'uniquegithubid2',
       website: 'https://site.com',
       bio: 'I does codes',
@@ -215,6 +224,7 @@ describe('updateById', () => {
       {
         id: secondId,
         name: 'Test User2',
+        username: 'testuser255',
         email: 'test2@test.com',
         githubId: '123456789',
       },
@@ -235,6 +245,36 @@ describe('updateById', () => {
       logging: false,
     });
   });
+
+  it('throws if duplicate', async () => {
+    const secondId = uuid();
+
+    await UserModel.create(
+      {
+        id: secondId,
+        name: 'Test User2',
+        username: 'testuser',
+        email: 'test4@test.com',
+        githubId: '12345678933',
+      },
+      {logging: false}
+    );
+
+    await expect(
+      new User().updateById({
+        id,
+        email: 'test2@test.com',
+        username: 'testuser',
+      })
+    ).rejects.toThrow('username must be unique');
+
+    await UserModel.destroy({
+      where: {
+        id: secondId,
+      },
+      logging: false,
+    });
+  });
 });
 
 describe('create', () => {
@@ -244,7 +284,7 @@ describe('create', () => {
     id = uuid();
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await UserModel.destroy({
       where: {
         id,
@@ -257,6 +297,7 @@ describe('create', () => {
     const user = await new User().create({
       id,
       email: 'new@mail.com',
+      username: 'testing',
       name: 'Testing',
       githubId: '12345678',
     });
@@ -264,6 +305,7 @@ describe('create', () => {
     expect(user).toStrictEqual({
       id,
       name: 'Testing',
+      username: 'testing',
       email: 'new@mail.com',
       githubId: '12345678',
       website: null,
@@ -275,20 +317,20 @@ describe('create', () => {
   });
 
   it('creates a new user with image', async () => {
-    const uniqueId = uuid();
-
     const user = await new User().create({
-      id: uniqueId,
+      id: id,
       email: 'another@mail.com',
+      username: 'testing',
       name: 'Testing',
       githubId: '123456',
       profileImage: 'https://path.to/image.png',
     });
 
     expect(user).toStrictEqual({
-      id: uniqueId,
+      id: id,
       name: 'Testing',
       email: 'another@mail.com',
+      username: 'testing',
       githubId: '123456',
       website: null,
       bio: null,
@@ -305,6 +347,7 @@ describe('create', () => {
       id: uniqueId,
       email: 'another2@mail.com',
       name: 'Testing',
+      username: 'testing2',
       githubId: '12345688',
       profileImage: 'https://path.to/image.png',
     });
@@ -314,6 +357,7 @@ describe('create', () => {
         id: uuid(),
         email: 'uuid@mail.com',
         name: 'Testing2',
+        username: 'testing23',
         githubId: '12345688',
         profileImage: 'https://path.to/image.png',
       })
@@ -330,6 +374,7 @@ describe('create', () => {
         id: uuid(),
         email: 'uuid2@mail.com',
         name: 'Testing3',
+        username: 'testing3',
         githubId: '12345689',
         profileImage: 'https://path.to/image.png',
       })

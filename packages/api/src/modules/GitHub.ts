@@ -73,8 +73,6 @@ export class GitHub {
       body: JSON.stringify(requestParams),
     }).then(res => res.json())) as GetTokenResponse;
 
-    console.log(response);
-
     return response.access_token;
   }
 

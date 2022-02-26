@@ -1,5 +1,5 @@
 import Fastify, {FastifyInstance} from 'fastify';
-import {IUser, User, UserAddOptions} from '@persona/entities';
+import {User, UserAddOptions} from '@persona/entities';
 import {v4 as uuid} from 'uuid';
 import cors from 'fastify-cors';
 import {config} from 'dotenv';
@@ -166,7 +166,6 @@ server.post<{Body: {token: string}}>(
 
       return user;
     } catch (error) {
-      console.log(error);
       reply.code(400);
       return {
         error: {

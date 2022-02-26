@@ -14,10 +14,13 @@
     <v-row>
       <v-col cols="12" class="mx-auto">
         <v-card elevation="0" class="pa-10 form-contain">
-          <v-form ref="form" v-model="formOptions.valid">
-            <v-form-edit-mode v-if="formOptions.editMode" />
+          <section ref="form">
+            <v-form-edit-mode
+              v-if="formOptions.editMode"
+              @cancel="formOptions.editMode = false"
+            />
             <v-form-default-mode v-else />
-          </v-form>
+          </section>
           <v-card-actions>
             <v-btn
               v-if="!formOptions.editMode"
@@ -27,14 +30,6 @@
               small
               @click="formOptions.editMode = !formOptions.editMode"
               >Edit</v-btn
-            >
-            <v-btn
-              v-if="formOptions.editMode"
-              outlined
-              small
-              class="ml-auto"
-              @click="formOptions.editMode = false"
-              >Cancel</v-btn
             >
           </v-card-actions>
         </v-card>

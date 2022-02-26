@@ -17,9 +17,9 @@ export const state = () => ({
   user: null as User | null,
 })
 
-export type RootState = ReturnType<typeof state>
+export type UserState = ReturnType<typeof state>
 
-export const mutations: MutationTree<RootState> = {
+export const mutations: MutationTree<UserState> = {
   SET_USER: (state, payload: User | null) => {
     state.user = payload
   },

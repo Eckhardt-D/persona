@@ -24,7 +24,7 @@ export default {
   css: ['../../node_modules/highlight.js/styles/monokai-sublime.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: ['~/plugins/md.ts'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,

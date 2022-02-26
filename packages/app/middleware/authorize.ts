@@ -33,6 +33,13 @@ const middleware: Middleware = async (context: Context) => {
     })
 
     store.commit('user/SET_USER', response)
+    store.commit('profile/SET_PROFILE', {
+      bio: response.bio,
+      name: response.name,
+      website: response.website,
+      username: response.username,
+      profileImage: response.profileImage,
+    })
   } catch (__) {
     return redirect('/auth')
   }

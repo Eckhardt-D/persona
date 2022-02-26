@@ -153,8 +153,10 @@ export class User {
       stripUnknown: true,
     })) as UserUpdateByIdOptions;
 
+    const paramsCopy = {...params, id: undefined};
+
     try {
-      const [count] = await UserModel.update(params, {
+      const [count] = await UserModel.update(paramsCopy, {
         where: {
           id: params.id,
         },

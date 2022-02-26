@@ -1,18 +1,16 @@
 <template>
-  <main>
+  <v-form v-model="valid">
     <h1 class="mb-7">Edit Mode</h1>
 
     <div class="form-section">
       <v-avatar ref="avatar" style="align-self: flex-start" size="80">
         <v-img
-          :src="
-            useCustom ? avatarSettings.avatar.imageUrl : options.avatar.imageUrl
-          "
+          :src="avatar.localUrl || profileState.profileImage"
           @mouseenter="showUploadState"
           @mouseleave="hideUploadState"
         >
           <transition name="fade">
-            <div v-if="options.avatar.isHovering" class="upload-overlay">
+            <div v-if="avatarState.isHovering" class="upload-overlay">
               <input
                 id="uploader"
                 type="file"
@@ -26,17 +24,20 @@
       </v-avatar>
       <section class="ml-7">
         <v-text-field
-          v-model="options.name"
+          :value="profileState.name"
+          :rules="rules.required"
           outlined
           dense
           label="Edit your name"
-          value="John Doe"
+          @input="(value) => updateProfile({ key: 'name', value })"
         />
         <v-text-field
-          v-model="options.website"
+          :value="profileState.website"
+          :rules="[...rules.required, ...rules.url]"
           outlined
           dense
           label="Edit your website link"
+          @input="(value) => updateProfile({ key: 'website', value })"
         ></v-text-field>
       </section>
     </div>
@@ -47,9 +48,11 @@
       </div>
       <v-textarea
         v-if="!preview"
-        v-model="options.bio"
+        :value="profileState.bio"
+        :rules="rules.required"
         outlined
-        label="Edit your bio"
+        label="Edit your bio (markdown supported)"
+        @input="(value) => updateProfile({ key: 'bio', value })"
       />
       <div
         v-else
@@ -59,119 +62,104 @@
         v-html="processedBio"
       />
     </div>
-  </main>
+    <v-card-actions>
+      <v-btn
+        class="ml-auto"
+        color="primary"
+        outlined
+        small
+        @click="updateDetails"
+        >Save</v-btn
+      >
+      <v-btn outlined small @click="cancelEdit">Cancel</v-btn>
+    </v-card-actions>
+  </v-form>
 </template>
 
 <script lang="ts">
-// @TODO: Refactor to store Form module.
 import Vue from 'vue'
-import markdown from 'markdown-it'
-import hljs from 'highlight.js'
-import { mapState } from 'vuex'
-
-export interface Avatar {
-  isHovering: boolean
-  hasFile: boolean
-  file?: File | null
-  imageUrl: string
-}
-
-export interface FormOptions {
-  avatar: Avatar
-  bio: string
-  name: string
-  website: string
-}
+import { mapState, mapMutations } from 'vuex'
+import { Profile } from '../store/profile'
 
 export default Vue.extend({
-  name: 'FormEdit',
+  name: 'EditForm',
   data: () => ({
-    avatarSettings: {
-      avatar: {
-        isHovering: false,
-        hasFile: false,
-        file: null,
-        imageUrl: '/avatar.jpg',
-      } as Avatar,
-    },
     preview: false,
-    useCustom: false,
+    valid: true,
   }),
   computed: {
     ...mapState('user', ['user']),
-    options() {
-      return {
-        avatar: this.user.profileImage
-          ? { ...this.avatarSettings.avatar, imageUrl: this.user.profileImage }
-          : this.avatarSettings.avatar,
-        bio: this.user.bio || '',
-        name: this.user.name,
-        website:
-          this.user.website || `https://github.com/${this.user.username}`,
-      } as FormOptions
+    ...mapState('profile', { profileState: 'profile' }),
+    ...mapState('avatar', { avatarState: 'avatar' }),
+    profile: {
+      get(): Profile {
+        return this.profileState
+      },
+      set({ key, value }) {
+        const updateProfile = (this as any).UPDATE_PROFILE
+        updateProfile({ key, update: value })
+      },
     },
-    avatarSource: {
+    avatar: {
       get() {
-        return this.avatarSettings.avatar.imageUrl
+        return this.avatarState
       },
-      set(value: Event) {
-        const files: FileList | null = (value.target as HTMLInputElement).files
-
-        if (files && files[0]) {
-          const file = files[0]
-          const url: string = URL.createObjectURL(file)
-
-          this.avatarSettings.avatar.hasFile = true
-          this.avatarSettings.avatar.file = file
-          this.avatarSettings.avatar.imageUrl = url
-          this.useCustom = true
-          return
-        }
-
-        this.avatarSettings.avatar.hasFile = false
-        this.avatarSettings.avatar.file = null
-        this.avatarSettings.avatar.imageUrl =
-          this.user.profileImage || '/avatar.jpg'
-        this.useCustom = false
+      set(value: File) {
+        const setAvatar = (this as any).SET_AVATAR
+        setAvatar(value)
       },
     },
-    processedBio(): string {
-      const md = markdown({
-        highlight(str: string, lang: string) {
-          if (lang && hljs.getLanguage(lang)) {
-            try {
-              return (
-                '<pre class="hljs"><code>' +
-                hljs.highlight(str, { language: lang, ignoreIllegals: true })
-                  .value +
-                '</code></pre>'
-              )
-            } catch (__) {}
-          }
-          return (
-            '<pre class="hljs"><code>' +
-            md.utils.escapeHtml(str) +
-            '</code></pre>'
-          )
-        },
-      })
-
-      return md.render((this.options as FormOptions).bio)
+    rules() {
+      const isUrl = (this as any).isUrl
+      return {
+        required: [(v: string) => !!v || 'Value is required'],
+        url: [(v: string) => isUrl(v) || 'Value must be a valid URL'],
+      }
+    },
+    processedBio() {
+      const profile = this.profile as Profile
+      const mark = (this as any).$md
+      return mark(profile.bio || '')
     },
   },
   methods: {
+    ...mapMutations('avatar', ['SET_AVATAR_HOVERING', 'SET_AVATAR']),
+    ...mapMutations('profile', ['UPDATE_PROFILE']),
+    isUrl(input: string): boolean {
+      try {
+        const url = new URL(input)
+        return !!url
+      } catch (__) {
+        return false
+      }
+    },
     showUploadState() {
-      this.avatarSettings.avatar.isHovering = true
+      const setAvatarHovering = (this as any).SET_AVATAR_HOVERING
+      setAvatarHovering(true)
     },
     hideUploadState() {
-      this.avatarSettings.avatar.isHovering = false
+      const setAvatarHovering = (this as any).SET_AVATAR_HOVERING
+      setAvatarHovering(false)
     },
-    setAvatarUrl(payload: Event) {
-      this.avatarSource = payload
+    setAvatarUrl(value: Event) {
+      const target = value.target as HTMLInputElement
+      const files = target.files
+
+      if (files && files[0]) {
+        const file = files[0]
+        this.avatar = file
+      }
     },
-    resetForm() {
-      this.avatarSettings.avatar.imageUrl = this.user.profileImage
-      this.useCustom = false
+    updateProfile({ key, value }: { key: string; value: string }) {
+      this.profile = { key, value }
+    },
+    cancelEdit() {
+      this.avatar = null
+      // @todo reset profile data to user data.
+      this.$emit('cancel')
+    },
+    updateDetails() {
+      console.log(this.profile, this.avatar)
     },
   },
 })

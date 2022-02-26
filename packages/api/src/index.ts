@@ -1,5 +1,5 @@
 import Fastify, {FastifyInstance} from 'fastify';
-import {User, UserAddOptions} from '@persona/entities';
+import {User, UserAddOptions, UserUpdateByIdOptions} from '@persona/entities';
 import {v4 as uuid} from 'uuid';
 import cors from 'fastify-cors';
 import {config} from 'dotenv';
@@ -256,6 +256,75 @@ server.post<{Body: {code: string; state: string}}>(
     return {
       token,
     };
+  }
+);
+
+server.patch(
+  '/api/profile',
+  {
+    schema: {
+      body: {
+        id: {
+          type: 'string',
+        },
+        update: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+            username: {
+              type: 'string',
+            },
+            email: {
+              type: 'string',
+            },
+            profileImage: {
+              type: 'string',
+            },
+            bio: {
+              type: 'string',
+            },
+            website: {
+              type: 'string',
+            },
+          },
+        },
+      },
+      response: {
+        200: {
+          id: {type: 'string'},
+          name: {type: 'string'},
+          username: {type: 'string'},
+          email: {type: 'string'},
+          githubId: {type: 'string'},
+          bio: {type: ['string', 'null']},
+          website: {type: ['string', 'null']},
+          profileImage: {type: ['string', 'null']},
+          createdAt: {type: 'string'},
+          updatedAt: {type: 'string'},
+        },
+      },
+    },
+  },
+  async request => {
+    const {id, ...update} = request.body as UserUpdateByIdOptions;
+
+    try {
+      const user = await new User().updateById({
+        id,
+        ...update,
+      });
+
+      return user;
+    } catch ({message}) {
+      return {
+        error: {
+          statusCode: 500,
+          message: message as string,
+        },
+      };
+    }
   }
 );
 

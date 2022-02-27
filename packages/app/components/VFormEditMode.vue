@@ -33,7 +33,7 @@
         />
         <v-text-field
           :value="profileState.website"
-          :rules="[...rules.required, ...rules.url]"
+          :rules="[...rules.url]"
           outlined
           dense
           label="Edit your website link"
@@ -49,7 +49,6 @@
       <v-textarea
         v-if="!preview"
         :value="profileState.bio"
-        :rules="rules.required"
         outlined
         label="Edit your bio (markdown supported)"
         @input="(value) => updateProfile({ key: 'bio', value })"
@@ -73,19 +72,27 @@
       >
       <v-btn outlined small @click="cancelEdit">Cancel</v-btn>
     </v-card-actions>
+    <v-notify v-model="error" :text="errorMessage" />
+    <v-notify v-model="success" :text="successMessage" />
   </v-form>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import { Profile } from '../store/profile'
+import { Avatar } from '../store/avatar'
 
 export default Vue.extend({
   name: 'EditForm',
   data: () => ({
     preview: false,
     valid: true,
+    error: false,
+    success: false,
+    errorMessage: '',
+    successMessage: '',
+    loadingUpdate: false,
   }),
   computed: {
     ...mapState('user', ['user']),
@@ -113,7 +120,7 @@ export default Vue.extend({
       const isUrl = (this as any).isUrl
       return {
         required: [(v: string) => !!v || 'Value is required'],
-        url: [(v: string) => isUrl(v) || 'Value must be a valid URL'],
+        url: [(v: string) => !v || isUrl(v) || 'Value must be a valid URL'],
       }
     },
     processedBio() {
@@ -122,9 +129,30 @@ export default Vue.extend({
       return mark(profile.bio || '')
     },
   },
+  watch: {
+    error(val) {
+      const self = this
+      if (val) {
+        setTimeout(() => {
+          self.error = false
+          self.errorMessage = ''
+        }, 3000)
+      }
+    },
+    success(val) {
+      const self = this
+      if (val) {
+        setTimeout(() => {
+          self.success = false
+          self.successMessage = ''
+        }, 3000)
+      }
+    },
+  },
   methods: {
     ...mapMutations('avatar', ['SET_AVATAR_HOVERING', 'SET_AVATAR']),
-    ...mapMutations('profile', ['UPDATE_PROFILE']),
+    ...mapMutations('profile', ['UPDATE_PROFILE', 'RESET_PROFILE']),
+    ...mapActions('profile', ['resetProfile']),
     isUrl(input: string): boolean {
       try {
         const url = new URL(input)
@@ -145,21 +173,85 @@ export default Vue.extend({
       const target = value.target as HTMLInputElement
       const files = target.files
 
-      if (files && files[0]) {
-        const file = files[0]
-        this.avatar = file
+      if (!files || !files[0]) return
+
+      const file = files[0]
+      const size = file.size
+      const type = file.type
+
+      if (size > 512000) {
+        this.error = true
+        this.errorMessage = 'Image must not be more than 512kb.'
+        return
       }
+
+      if (!type.includes('image/')) {
+        this.error = true
+        this.errorMessage = 'Image must be a valid image.'
+        return
+      }
+
+      this.avatar = file
     },
     updateProfile({ key, value }: { key: string; value: string }) {
       this.profile = { key, value }
     },
     cancelEdit() {
+      const reset = (this as any).resetProfile
       this.avatar = null
-      // @todo reset profile data to user data.
+      reset()
       this.$emit('cancel')
     },
-    updateDetails() {
-      console.log(this.profile, this.avatar)
+    async updateDetails() {
+      let uploadUrl: string
+
+      if (!this.valid) {
+        this.error = true
+        this.errorMessage = 'Please check that you have entered all the fields'
+        return
+      }
+
+      if ((this.avatar as Avatar).file) {
+        // Upload and get link
+        const url = 'http://localhost:3002/api/profile/image'
+        const formData = new FormData()
+        formData.append('file', (this.avatar as Avatar).file as File)
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+        }).then((res) => res.json())
+
+        if (response.url) {
+          uploadUrl = response.url
+        }
+      }
+
+      const payload = (this as any).stripNullOrEmpty(this.profile)
+
+      // @ts-ignore:TS2454
+      if (uploadUrl) {
+        payload.profileImage = uploadUrl
+      }
+
+      await this.$store.dispatch('profile/updateProfile', payload)
+      this.avatar = null
+    },
+    stripNullOrEmpty(profile: Profile) {
+      const copy = { ...profile }
+      const reduced = Object.entries(copy).reduce((previous, current) => {
+        const [key, value] = current
+
+        if (value && key !== 'username') {
+          return {
+            ...previous,
+            [key]: value,
+          }
+        }
+
+        return previous
+      }, {})
+
+      return reduced
     },
   },
 })

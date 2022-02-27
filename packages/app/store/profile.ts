@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import { MutationTree } from 'vuex'
+import { MutationTree, ActionTree } from 'vuex'
+import { UserState } from './user'
 
 export interface Profile {
   name: string
@@ -27,5 +28,35 @@ export const mutations: MutationTree<ProfileState> = {
   },
   UPDATE_PROFILE: (state, { key, update }) => {
     Vue.set(state.profile, key, update)
+  },
+}
+
+export const actions: ActionTree<ProfileState, { user: UserState }> = {
+  resetProfile({ commit, rootState }) {
+    const user = rootState.user.user
+    commit('SET_PROFILE', {
+      name: user?.name,
+      username: user?.username,
+      bio: user?.bio,
+      website: user?.website,
+      profileImage: user?.profileImage,
+    })
+  },
+  async updateProfile({ rootState, commit }, update) {
+    const url = 'http://localhost:3002/api/profile'
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: rootState.user.user?.id,
+        update,
+      }),
+    }).then((res) => res.json())
+
+    console.log(response)
+
+    commit('user/SET_USER', response, { root: true })
   },
 }

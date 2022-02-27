@@ -13,7 +13,9 @@
 
     <v-footer absolute app>
       <span id="footerText">
-        &copy; {{ new Date().getFullYear() }} Made with 💓 in Namibia ☀️
+        &copy; {{ new Date().getFullYear() }} Made by
+        <a href="https://twitter.com/eckhardtdreyer">Eckhardt</a> with 💓 in
+        Namibia ☀️
       </span>
     </v-footer>
   </v-app>

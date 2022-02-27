@@ -13,9 +13,8 @@
     </div>
     <div class="form-section--noflex mt-7">
       <h3>Your story</h3>
-      <p class="profile-bio">
-        {{ user.bio || '' }}
-      </p>
+      <p v-if="user.bio" class="profile-bio" v-html="$md(user.bio)" />
+      <p v-else></p>
     </div>
   </main>
 </template>

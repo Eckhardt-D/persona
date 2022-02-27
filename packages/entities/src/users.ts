@@ -13,7 +13,7 @@ const databaseUserSchema = Joi.object({
   githubId: Joi.string().required(),
   bio: Joi.string().allow(null),
   website: Joi.string().uri().allow(null),
-  profileImage: Joi.string().uri().allow(null),
+  profileImage: Joi.string().allow(null),
   createdAt: Joi.date().required(),
   updatedAt: Joi.date().required(),
 }).required();
@@ -84,7 +84,7 @@ const addOptionsSchema = Joi.object({
   name: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().email().required(),
-  profileImage: Joi.string().uri().optional(),
+  profileImage: Joi.string().optional(),
 }).required();
 
 export class User {

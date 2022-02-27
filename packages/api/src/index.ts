@@ -5,6 +5,9 @@ import cors from 'fastify-cors';
 import {config} from 'dotenv';
 import {StateManager} from './modules/StateManager';
 import {GitHub} from './modules/GitHub';
+import fileUpload from 'fastify-file-upload';
+import {Firebase} from './modules/Firebase';
+import {UploadedFile} from './typings/UploadedFile';
 
 config();
 
@@ -16,8 +19,16 @@ const githubSDK: GitHub = new GitHub({
   client_secret: process.env.GH_CLIENT_SECRET as string,
 });
 
+const firebase: Firebase = new Firebase({
+  privateKeyPath: process.env.FB_CERT_PATH as string,
+});
+
 server.register(cors, {
   origin: 'http://localhost:3000',
+});
+
+server.register(fileUpload, {
+  limits: {fileSize: 512000},
 });
 
 class ResponseError extends Error {
@@ -325,6 +336,43 @@ server.patch(
         },
       };
     }
+  }
+);
+
+server.post<{Body: {file: unknown}}>(
+  '/api/profile/image',
+  {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'object',
+          },
+        },
+        required: ['file'],
+      },
+      response: {
+        200: {
+          url: {
+            type: 'string',
+          },
+        },
+      },
+    },
+  },
+  async request => {
+    const file = request.body.file as UploadedFile;
+
+    const url = await firebase.uploadProfileImageAndGetPath({
+      file,
+    });
+
+    console.log(url);
+
+    return {
+      url,
+    };
   }
 );
 

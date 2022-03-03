@@ -1,4 +1,4 @@
-import {fetch} from 'undici';
+import fetch from 'node-fetch';
 
 export interface GithubConstructorOptions {
   client_id: string;

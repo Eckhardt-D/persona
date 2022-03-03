@@ -24,7 +24,7 @@ const firebase: Firebase = new Firebase({
 });
 
 server.register(cors, {
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'https://azure.kaizen.com.na'],
 });
 
 server.register(fileUpload, {

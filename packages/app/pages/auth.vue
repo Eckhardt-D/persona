@@ -54,9 +54,9 @@ export default Vue.extend({
   }),
   methods: {
     async githubAuthProviderInit() {
-      const { state } = await fetch('http://localhost:3002/api/state').then(
-        (res) => res.json()
-      )
+      const { state } = await fetch(
+        'https://api-azure.kaizen.com.na/api/state'
+      ).then((res) => res.json())
 
       const options: GithubAuthOptions = {
         client_id: this.$config.github.client_id,

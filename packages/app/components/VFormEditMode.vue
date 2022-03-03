@@ -216,7 +216,7 @@ export default Vue.extend({
 
       if ((this.avatar as Avatar).file) {
         // Upload and get link
-        const url = 'http://localhost:3002/api/profile/image'
+        const url = 'https://api-azure.kaizen.com.na/api/profile/image'
         const formData = new FormData()
 
         formData.append('file', (this.avatar as Avatar).file as File)

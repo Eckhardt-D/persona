@@ -43,7 +43,7 @@ export const actions: ActionTree<ProfileState, { user: UserState }> = {
     })
   },
   async updateProfile({ commit }, update) {
-    const url = 'http://localhost:3002/api/profile'
+    const url = 'https://api-azure.kaizen.com.na/api/profile'
     const response = await fetch(url, {
       method: 'PATCH',
       headers: {

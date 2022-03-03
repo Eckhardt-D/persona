@@ -25,7 +25,7 @@ const middleware: Middleware = async (context: Context) => {
     return redirect('/auth')
   }
 
-  const validateUrl = 'http://localhost:3002/api/token/validate'
+  const validateUrl = 'https://api-azure.kaizen.com.na/api/token/validate'
 
   try {
     const response: User = await $axios.$post(validateUrl, {

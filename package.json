@@ -3,6 +3,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "engines": {
+    "node": ">16.5"
+  },
   "scripts": {
     "test": "cross-env NODE_ENV=test lerna run migrations:up:test && yarn test:all",
     "build:core": "lerna run compile",

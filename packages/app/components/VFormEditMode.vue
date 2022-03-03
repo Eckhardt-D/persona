@@ -67,6 +67,7 @@
         color="primary"
         outlined
         small
+        :loading="loadingUpdate"
         @click="updateDetails"
         >Save</v-btn
       >
@@ -211,11 +212,15 @@ export default Vue.extend({
         return
       }
 
+      this.loadingUpdate = true
+
       if ((this.avatar as Avatar).file) {
         // Upload and get link
         const url = 'http://localhost:3002/api/profile/image'
         const formData = new FormData()
+
         formData.append('file', (this.avatar as Avatar).file as File)
+
         const response = await fetch(url, {
           method: 'POST',
           body: formData,
@@ -233,15 +238,28 @@ export default Vue.extend({
         payload.profileImage = uploadUrl
       }
 
-      await this.$store.dispatch('profile/updateProfile', payload)
+      const id = this.user.id
+
+      await this.$store.dispatch('profile/updateProfile', {
+        id,
+        update: payload,
+      })
+
+      this.loadingUpdate = false
       this.avatar = null
+      this.success = true
+      this.successMessage = 'Successfully updated 🚀'
+
+      setTimeout(() => {
+        this.$emit('cancel')
+      }, 1000)
     },
     stripNullOrEmpty(profile: Profile) {
       const copy = { ...profile }
       const reduced = Object.entries(copy).reduce((previous, current) => {
         const [key, value] = current
 
-        if (value && key !== 'username') {
+        if (value) {
           return {
             ...previous,
             [key]: value,

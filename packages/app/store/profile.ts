@@ -42,21 +42,23 @@ export const actions: ActionTree<ProfileState, { user: UserState }> = {
       profileImage: user?.profileImage,
     })
   },
-  async updateProfile({ rootState, commit }, update) {
+  async updateProfile({ commit }, update) {
     const url = 'http://localhost:3002/api/profile'
     const response = await fetch(url, {
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',
       },
-      body: JSON.stringify({
-        id: rootState.user.user?.id,
-        update,
-      }),
+      body: JSON.stringify(update),
     }).then((res) => res.json())
 
-    console.log(response)
-
     commit('user/SET_USER', response, { root: true })
+    commit('SET_PROFILE', {
+      name: response.name,
+      username: response.username,
+      bio: response.bio,
+      website: response.website,
+      profileImage: response.profileImage,
+    })
   },
 }

@@ -1,5 +1,5 @@
 import Fastify, {FastifyInstance} from 'fastify';
-import {User, UserAddOptions, UserUpdateByIdOptions} from '@persona/entities';
+import {User, UserAddOptions} from '@persona/entities';
 import {v4 as uuid} from 'uuid';
 import cors from 'fastify-cors';
 import {config} from 'dotenv';
@@ -270,7 +270,7 @@ server.post<{Body: {code: string; state: string}}>(
   }
 );
 
-server.patch(
+server.patch<{Body: {id: string; update: {[key: string]: unknown}}}>(
   '/api/profile',
   {
     schema: {
@@ -319,7 +319,7 @@ server.patch(
     },
   },
   async request => {
-    const {id, ...update} = request.body as UserUpdateByIdOptions;
+    const {id, update} = request.body;
 
     try {
       const user = await new User().updateById({
@@ -367,8 +367,6 @@ server.post<{Body: {file: unknown}}>(
     const url = await firebase.uploadProfileImageAndGetPath({
       file,
     });
-
-    console.log(url);
 
     return {
       url,

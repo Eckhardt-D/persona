@@ -19,6 +19,8 @@ export class UserModel extends Model<
   declare githubId: string;
   declare bio: CreationOptional<string>;
   declare website: CreationOptional<string>;
+  declare customDomain: CreationOptional<string>;
+  declare customDomainVerified: CreationOptional<boolean>;
   declare profileImage: CreationOptional<string>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;

@@ -32,6 +32,14 @@ export const userSchema = {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  customDomain: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  customDomainVerified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
   createdAt: DataTypes.DATE,
   updatedAt: DataTypes.DATE,
   profileImage: {

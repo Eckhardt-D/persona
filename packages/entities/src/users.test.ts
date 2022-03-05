@@ -26,6 +26,7 @@ describe('getUserById', () => {
         username: 'TestUser',
         email: 'test@test.com',
         githubId: '12345678',
+        customDomainVerified: false,
       },
       {logging: false}
     );
@@ -50,6 +51,8 @@ describe('getUserById', () => {
       githubId: '12345678',
       website: null,
       bio: null,
+      customDomain: null,
+      customDomainVerified: false,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       profileImage: null,
@@ -75,6 +78,7 @@ describe('getByGitubId', () => {
         username: 'testuser',
         email: 'test@test.com',
         githubId: 'uniqueghid',
+        customDomainVerified: false,
       },
       {logging: false}
     );
@@ -97,6 +101,8 @@ describe('getByGitubId', () => {
       username: 'testuser',
       email: 'test@test.com',
       githubId: 'uniqueghid',
+      customDomain: null,
+      customDomainVerified: false,
       website: null,
       bio: null,
       createdAt: expect.any(Date),
@@ -124,6 +130,7 @@ describe('updateById', () => {
         username: 'testuser',
         email: 'test@test.com',
         githubId: 'uniquegithubid2',
+        customDomainVerified: false,
       },
       {logging: false}
     );
@@ -146,6 +153,8 @@ describe('updateById', () => {
       username: 'testuser',
       email: 'test@test.com',
       githubId: 'uniquegithubid2',
+      customDomain: null,
+      customDomainVerified: false,
       website: null,
       bio: null,
       createdAt: expect.any(Date),
@@ -184,6 +193,8 @@ describe('updateById', () => {
       email: 'new@email.com',
       username: 'testuser',
       githubId: 'uniquegithubid2',
+      customDomain: null,
+      customDomainVerified: false,
       website: null,
       bio: null,
       createdAt: expect.any(Date),
@@ -202,6 +213,8 @@ describe('updateById', () => {
         website: 'https://site.com',
         bio: 'I does codes',
         profileImage: 'https://path.to.image.png',
+        customDomain: 'test.com',
+        customDomainVerified: true,
       })
     ).resolves.toStrictEqual({
       id,
@@ -214,6 +227,8 @@ describe('updateById', () => {
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       profileImage: 'https://path.to.image.png',
+      customDomain: 'test.com',
+      customDomainVerified: true,
     });
   });
 
@@ -227,6 +242,7 @@ describe('updateById', () => {
         username: 'testuser255',
         email: 'test2@test.com',
         githubId: '123456789',
+        customDomainVerified: false,
       },
       {logging: false}
     );
@@ -256,6 +272,7 @@ describe('updateById', () => {
         username: 'testuser',
         email: 'test4@test.com',
         githubId: '12345678933',
+        customDomainVerified: false,
       },
       {logging: false}
     );
@@ -267,6 +284,37 @@ describe('updateById', () => {
         username: 'testuser',
       })
     ).rejects.toThrow('username must be unique');
+
+    await UserModel.destroy({
+      where: {
+        id: secondId,
+      },
+      logging: false,
+    });
+  });
+
+  it('throws if duplicate', async () => {
+    const secondId = uuid();
+
+    await UserModel.create(
+      {
+        id: secondId,
+        name: 'Test User2',
+        username: 'testuser',
+        email: 'test4@test.com',
+        githubId: '12345678933',
+        customDomain: 'test.com',
+        customDomainVerified: false,
+      },
+      {logging: false}
+    );
+
+    await expect(
+      new User().updateById({
+        id,
+        customDomain: 'test.com',
+      })
+    ).rejects.toThrow('Cannot add domain "');
 
     await UserModel.destroy({
       where: {
@@ -308,6 +356,8 @@ describe('create', () => {
       username: 'testing',
       email: 'new@mail.com',
       githubId: '12345678',
+      customDomain: undefined,
+      customDomainVerified: false,
       website: null,
       bio: null,
       createdAt: expect.any(Date),
@@ -333,6 +383,8 @@ describe('create', () => {
       username: 'testing',
       githubId: '123456',
       website: null,
+      customDomain: undefined,
+      customDomainVerified: false,
       bio: null,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),

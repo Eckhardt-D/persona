@@ -3,6 +3,11 @@ import {InferAttributes} from 'sequelize';
 import {createUserModel, UserModel} from '@persona/db-manager';
 import {database} from './database';
 
+/**
+ * This is a bit hacky and makes 'associations'
+ * a bit tricky to handle, but I don't expect
+ * to add more models just yet so... yeah 🤷
+ */
 createUserModel(database);
 
 const databaseUserSchema = Joi.object({
@@ -14,6 +19,8 @@ const databaseUserSchema = Joi.object({
   bio: Joi.string().allow(null),
   website: Joi.string().uri().allow(null),
   profileImage: Joi.string().allow(null),
+  customDomain: Joi.string().allow(null),
+  customDomainVerified: Joi.bool().default(false),
   createdAt: Joi.date().required(),
   updatedAt: Joi.date().required(),
 }).required();
@@ -27,6 +34,8 @@ export interface IUser {
   bio: string | null;
   website: string | null;
   profileImage: string | null;
+  customDomain: string;
+  customDomainVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +64,8 @@ export interface UserUpdateByIdOptions {
   profileImage?: string;
   bio?: string;
   website?: string;
+  customDomain?: string;
+  customDomainVerified?: boolean;
 }
 
 const updateByIdOptionsSchema = Joi.object({
@@ -63,10 +74,21 @@ const updateByIdOptionsSchema = Joi.object({
   username: Joi.string().optional(),
   email: Joi.string().optional(),
   profileImage: Joi.string().optional(),
+  customDomain: Joi.string().optional(),
+  customDomainVerified: Joi.bool().optional(),
   bio: Joi.string().optional(),
   website: Joi.string().optional(),
 })
-  .or('name', 'email', 'profileImage', 'bio', 'webpage', 'username')
+  .or(
+    'name',
+    'email',
+    'profileImage',
+    'bio',
+    'webpage',
+    'username',
+    'customDomain',
+    'customDomainVerified'
+  )
   .required();
 
 export interface UserAddOptions {
@@ -102,10 +124,22 @@ export class User {
     data.username = validatedUser.username;
     data.website = validatedUser.website || null;
     data.bio = validatedUser.bio || null;
+    data.customDomain = validatedUser.customDomain;
+    data.customDomainVerified = validatedUser.customDomainVerified;
     data.createdAt = validatedUser.createdAt;
     data.updatedAt = validatedUser.updatedAt;
     data.profileImage = validatedUser.profileImage || null;
     return data;
+  }
+
+  /** Meeh why not traverse everything.. */
+  private async checkDomainUnique(domainName: string): Promise<boolean> {
+    const response = await UserModel.count({
+      where: {
+        customDomain: domainName,
+      },
+    });
+    return response === 0;
   }
 
   async getById(options: UserGetByIdOptions): Promise<IUser | undefined> {
@@ -155,6 +189,16 @@ export class User {
 
     const paramsCopy = {...params, id: undefined};
 
+    if (paramsCopy.customDomain) {
+      const unique = await this.checkDomainUnique(paramsCopy.customDomain);
+
+      if (!unique) {
+        throw new Error(
+          `Cannot add domain "${paramsCopy.customDomain}", another user already owns it.`
+        );
+      }
+    }
+
     try {
       const [count] = await UserModel.update(paramsCopy, {
         where: {
@@ -183,7 +227,10 @@ export class User {
     })) as UserAddOptions;
 
     try {
-      const result = await UserModel.create(params);
+      const result = await UserModel.create({
+        ...params,
+        customDomainVerified: false,
+      });
       return User.toUser(result.get({plain: true}));
     } catch ({name, errors}) {
       if (name === 'SequelizeUniqueConstraintError') {

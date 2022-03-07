@@ -31,44 +31,6 @@ server.register(fileUpload, {
   limits: {fileSize: 512000},
 });
 
-class ResponseError extends Error {
-  declare statusCode: number;
-  constructor(message?: string) {
-    super(message);
-  }
-}
-
-const functionToSwallowError = (err: unknown) => {
-  return err;
-};
-
-server.get('/', async () => {
-  const userModel = new User();
-  try {
-    await userModel.create({
-      id: uuid(),
-      githubId: '123456',
-      name: 'Testing',
-      username: 'testing',
-      email: 'eckhardt@kaizen.com',
-    });
-    // eslint-disable-next-line
-  } catch (error) {
-    functionToSwallowError(error);
-  }
-
-  const user = await userModel.getByGithubId({githubId: '123456'});
-
-  if (user === undefined) {
-    const err = new ResponseError();
-    err.statusCode = 404;
-    err.message = 'Could not find user with id "123456"';
-    throw err;
-  }
-
-  return user;
-});
-
 server.get(
   '/api/state',
   {
@@ -119,6 +81,8 @@ server.post<{Body: {token: string}}>(
             bio: {type: ['string', 'null']},
             website: {type: ['string', 'null']},
             profileImage: {type: ['string', 'null']},
+            customDomain: {type: ['string', 'null']},
+            customDomainVerfied: {type: 'boolean'},
             createdAt: {type: 'string'},
             updatedAt: {type: 'string'},
           },
@@ -299,6 +263,12 @@ server.patch<{Body: {id: string; update: {[key: string]: unknown}}}>(
             website: {
               type: 'string',
             },
+            customDomain: {
+              type: 'string',
+            },
+            customDomainVerified: {
+              type: 'boolean',
+            },
           },
         },
       },
@@ -314,6 +284,8 @@ server.patch<{Body: {id: string; update: {[key: string]: unknown}}}>(
           profileImage: {type: ['string', 'null']},
           createdAt: {type: 'string'},
           updatedAt: {type: 'string'},
+          customDomain: {type: ['string', 'null']},
+          customDomainVerified: {type: 'boolean'},
         },
       },
     },
@@ -371,6 +343,46 @@ server.post<{Body: {file: unknown}}>(
     return {
       url,
     };
+  }
+);
+
+server.post<{Body: {domain: string; id: string}}>(
+  '/api/domain/add',
+  {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+          },
+          domain: {
+            type: ['string', 'null'],
+          },
+        },
+      },
+      response: {
+        200: {
+          id: {type: 'string'},
+          name: {type: 'string'},
+          username: {type: 'string'},
+          email: {type: 'string'},
+          githubId: {type: 'string'},
+          bio: {type: ['string', 'null']},
+          website: {type: ['string', 'null']},
+          profileImage: {type: ['string', 'null']},
+          createdAt: {type: 'string'},
+          updatedAt: {type: 'string'},
+          customDomain: {type: ['string', 'null']},
+          customDomainVerified: {type: 'boolean'},
+        },
+      },
+    },
+  },
+  async request => {
+    const {id, domain} = request.body;
+    const user = await new User().updateById({id, customDomain: domain});
+    return user;
   }
 );
 

@@ -42,8 +42,8 @@ export const actions: ActionTree<ProfileState, { user: UserState }> = {
       profileImage: user?.profileImage,
     })
   },
-  async updateProfile({ commit }, update) {
-    const url = 'https://api-azure.kaizen.com.na/api/profile'
+  async updateProfile({ commit }, [apiUrl, update]) {
+    const url = `${apiUrl}/api/profile`
     const response = await fetch(url, {
       method: 'PATCH',
       headers: {

@@ -7,6 +7,8 @@ export interface User {
   username: string
   email: string
   githubId: string
+  customDomain: string | undefined | null
+  customDomainVerified: boolean
   bio: string | null
   website: string | null
   profileImage: string | null

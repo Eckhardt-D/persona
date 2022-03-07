@@ -216,7 +216,7 @@ export default Vue.extend({
 
       if ((this.avatar as Avatar).file) {
         // Upload and get link
-        const url = 'https://api-azure.kaizen.com.na/api/profile/image'
+        const url = `${this.$config.api_url}/api/profile/image`
         const formData = new FormData()
 
         formData.append('file', (this.avatar as Avatar).file as File)
@@ -240,10 +240,13 @@ export default Vue.extend({
 
       const id = this.user.id
 
-      await this.$store.dispatch('profile/updateProfile', {
-        id,
-        update: payload,
-      })
+      await this.$store.dispatch('profile/updateProfile', [
+        this.$config.api_url,
+        {
+          id,
+          update: payload,
+        },
+      ])
 
       this.loadingUpdate = false
       this.avatar = null

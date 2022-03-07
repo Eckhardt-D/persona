@@ -24,7 +24,7 @@ export default Vue.extend({
     }
 
     if (query.code) {
-      const url = 'https://api-azure.kaizen.com.na/api/authorize'
+      const url = `${this.$config.api_url}/api/authorize`
 
       const response = await fetch(url, {
         method: 'POST',

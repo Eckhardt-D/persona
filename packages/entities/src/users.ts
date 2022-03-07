@@ -34,7 +34,7 @@ export interface IUser {
   bio: string | null;
   website: string | null;
   profileImage: string | null;
-  customDomain: string;
+  customDomain: string | null;
   customDomainVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -64,7 +64,7 @@ export interface UserUpdateByIdOptions {
   profileImage?: string;
   bio?: string;
   website?: string;
-  customDomain?: string;
+  customDomain?: string | null;
   customDomainVerified?: boolean;
 }
 
@@ -74,7 +74,7 @@ const updateByIdOptionsSchema = Joi.object({
   username: Joi.string().optional(),
   email: Joi.string().optional(),
   profileImage: Joi.string().optional(),
-  customDomain: Joi.string().optional(),
+  customDomain: Joi.string().optional().allow(null),
   customDomainVerified: Joi.bool().optional(),
   bio: Joi.string().optional(),
   website: Joi.string().optional(),
@@ -124,7 +124,7 @@ export class User {
     data.username = validatedUser.username;
     data.website = validatedUser.website || null;
     data.bio = validatedUser.bio || null;
-    data.customDomain = validatedUser.customDomain;
+    data.customDomain = validatedUser.customDomain || null;
     data.customDomainVerified = validatedUser.customDomainVerified;
     data.createdAt = validatedUser.createdAt;
     data.updatedAt = validatedUser.updatedAt;

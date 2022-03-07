@@ -25,7 +25,7 @@ const middleware: Middleware = async (context: Context) => {
     return redirect('/auth')
   }
 
-  const validateUrl = 'https://api-azure.kaizen.com.na/api/token/validate'
+  const validateUrl = `${context.$config.api_url}/api/token/validate`
 
   try {
     const response: User = await $axios.$post(validateUrl, {
@@ -33,6 +33,7 @@ const middleware: Middleware = async (context: Context) => {
     })
 
     store.commit('user/SET_USER', response)
+    store.commit('domain/SET_DOMAIN', response.customDomain)
     store.commit('profile/SET_PROFILE', {
       bio: response.bio,
       name: response.name,

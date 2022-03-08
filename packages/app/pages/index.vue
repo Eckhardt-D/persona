@@ -10,9 +10,7 @@
         :href="`${$config.static_url}/${$store.state.user.user.id}`"
         >{{ $config.static_url }}/{{ $store.state.user.user.id }}</a
       >
-      <a
-        v-else
-        :href="`https://${$store.state.user.user.customDomain}/${$store.state.user.user.id}`"
+      <a v-else :href="`https://${$store.state.user.user.customDomain}`"
         >{{ $store.state.user.user.customDomain }}/{{
           $store.state.user.user.id
         }}</a
@@ -34,7 +32,8 @@
 
         <p class="page-description">
           Add your domain and point it to dns-azure.kaizen.com.na To see your
-          public profile on your own domain.
+          public profile on your own domain. (you might need to refresh this
+          page to see the status update after some propogation time).
         </p>
         <v-form ref="domainForm" v-model="domainValid">
           <v-text-field

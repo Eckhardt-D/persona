@@ -82,7 +82,7 @@ server.post<{Body: {token: string}}>(
             website: {type: ['string', 'null']},
             profileImage: {type: ['string', 'null']},
             customDomain: {type: ['string', 'null']},
-            customDomainVerfied: {type: 'boolean'},
+            customDomainVerified: {type: 'boolean'},
             createdAt: {type: 'string'},
             updatedAt: {type: 'string'},
           },

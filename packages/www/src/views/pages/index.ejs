@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('../partials/head') %>
+  <body>
+    <%- include('../partials/header') %>
+    <div class="container">
+      <div class="row mt-5">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center">
+          <img
+            id="profile-image"
+            src="<%= profileImage %>"
+            alt="<%= profileImage %> Image"
+          />
+          <h1 class="text-center mt-5"><%= name %></h1>
+          <div
+            class="mt-5 text-left"
+            id="bio-contain"
+            style="display: none; text-align: left !important"
+          >
+            <%= bio %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include('../partials/footer') %>
+  </body>
+</html>

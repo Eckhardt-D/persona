@@ -311,6 +311,54 @@ server.patch<{Body: {id: string; update: {[key: string]: unknown}}}>(
   }
 );
 
+server.post<{Body: {id: string}}>(
+  '/api/profile',
+  {
+    schema: {
+      body: {
+        id: {
+          type: 'string',
+        },
+      },
+      response: {
+        200: {
+          id: {type: 'string'},
+          name: {type: 'string'},
+          username: {type: 'string'},
+          bio: {type: ['string', 'null']},
+          profileImage: {type: ['string', 'null']},
+        },
+      },
+    },
+  },
+  async request => {
+    const {id} = request.body;
+
+    if (!id) throw new Error('User not found');
+
+    try {
+      const user = await new User().getById({
+        id,
+      });
+
+      return {
+        id: user?.id,
+        name: user?.name,
+        bio: user?.bio,
+        username: user?.username,
+        profileImage: user?.profileImage,
+      };
+    } catch ({message}) {
+      return {
+        error: {
+          statusCode: 500,
+          message: message as string,
+        },
+      };
+    }
+  }
+);
+
 server.post<{Body: {file: unknown}}>(
   '/api/profile/image',
   {
@@ -385,6 +433,56 @@ server.post<{Body: {domain: string; id: string}}>(
     return user;
   }
 );
+
+server.get('/domain/verify', async (request, reply) => {
+  try {
+    const {domain} = request.query as {domain: string};
+    if (!domain) throw new Error('No domain found.');
+
+    const user = await new User().getByDomain({domain});
+    if (!user) {
+      throw new Error('Domain does not exist');
+    }
+
+    new User().updateById({id: user.id, customDomainVerified: true});
+
+    return reply.status(200).send();
+  } catch ({message}) {
+    return reply.status(500).send({
+      error: {
+        statusCode: 500,
+        message,
+      },
+    });
+  }
+});
+
+server.get('/profile/domain', async (request, reply) => {
+  try {
+    const {domain} = request.query as {domain: string};
+    if (!domain) throw new Error('No domain found.');
+
+    const user = await new User().getByDomain({domain});
+    if (!user) {
+      throw new Error('Domain does not exist');
+    }
+
+    return {
+      id: user?.id,
+      name: user?.name,
+      bio: user?.bio,
+      username: user?.username,
+      profileImage: user?.profileImage,
+    };
+  } catch ({message}) {
+    return reply.status(500).send({
+      error: {
+        statusCode: 500,
+        message,
+      },
+    });
+  }
+});
 
 const start = async () => {
   try {

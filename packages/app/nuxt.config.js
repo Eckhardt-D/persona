@@ -56,6 +56,10 @@ export default {
       process.env.NODE_ENV === 'development'
         ? 'http://localhost:3002'
         : 'https://api-azure.kaizen.com.na',
+    static_url:
+      process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3001'
+        : 'https://static-azure.kaizen.com.na',
     github: {
       auth_url: 'https://github.com/login/oauth/authorize',
       client_id: process.env.GH_CLIENT_ID,

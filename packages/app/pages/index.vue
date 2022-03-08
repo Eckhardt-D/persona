@@ -1,5 +1,21 @@
 <template>
   <v-container fluid>
+    <p class="text-center">
+      Your public link is
+      <a
+        v-if="
+          !$store.state.user.user.customDomain ||
+          !$store.state.user.user.customDomainVerified
+        "
+        :href="`${$config.static_url}/${$store.state.user.user.id}`"
+        >{{ $config.static_url }}/{{ $store.state.user.user.id }}</a
+      >
+      <a
+        v-else
+        :href="`https://${$store.state.user.user.customDomain}/${$store.state.user.user.id}`"
+        >{{ $config.static_url }}/{{ $store.state.user.user.id }}</a
+      >
+    </p>
     <v-row class="page-title__contain">
       <v-col cols="12">
         <h1 class="page-title">Dashboard</h1>
@@ -172,7 +188,7 @@ export default Vue.extend({
             this.$store.commit('user/SET_USER', response)
             this.$store.commit('domain/SET_DOMAIN', null)
             this.domain = ''
-            this.$refs.domainForm.reset()
+            ;(this.$refs.domainForm as any).reset()
           } else {
             throw new Error('Failed to create this domain.')
           }

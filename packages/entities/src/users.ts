@@ -48,6 +48,14 @@ const getByIdOptionsSchema = Joi.object({
   id: Joi.string().required(),
 });
 
+export interface UserGetByDomainOptions {
+  domain: string;
+}
+
+const getByDomainOptionsSchema = Joi.object({
+  domain: Joi.string().required(),
+});
+
 export interface UserGetByGithubIdOptions {
   githubId: string;
 }
@@ -159,6 +167,27 @@ export class User {
     }
 
     return User.toUser(user.get({plain: true}));
+  }
+
+  async getByDomain(
+    options: UserGetByDomainOptions
+  ): Promise<IUser | undefined> {
+    const params = (await getByDomainOptionsSchema.validateAsync(options, {
+      stripUnknown: true,
+    })) as UserGetByDomainOptions;
+
+    const user = await UserModel.findOne({
+      where: {
+        customDomain: params.domain,
+      },
+      logging: false,
+    });
+
+    if (!user) {
+      return undefined;
+    }
+
+    return user;
   }
 
   async getByGithubId(

@@ -11,9 +11,7 @@
         >{{ $config.static_url }}/{{ $store.state.user.user.id }}</a
       >
       <a v-else :href="`https://${$store.state.user.user.customDomain}`"
-        >{{ $store.state.user.user.customDomain }}/{{
-          $store.state.user.user.id
-        }}</a
+        >https://{{ $store.state.user.user.customDomain }}</a
       >
     </p>
     <v-row class="page-title__contain">

@@ -54,6 +54,10 @@ yarn install
 yarn dev
 ```
 
+```bash
+yarn build && yarn start # production instances
+```
+
 Note: The `VM` runs on Caddy. This allows for easy config on auto-https and reverse proxying, install [Caddy](https://caddyserver.com) on your VM and edit your Caddyfile to this (just update the hard coded domains to your own and make sure they point to your instance IP):
 
 ```Caddyfile

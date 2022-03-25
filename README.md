@@ -18,7 +18,7 @@ Persona was developed for the [dev.to](https://dev.to/devteam/hack-the-microsoft
 
 ## How the app works
 
-You access the app at https://azure.kaizen.com.na. Here you can authorize the application with GitHub to create a base profile.
+You access the app at https://azure.kaizen.com.na [Instance Has Been Shutdown]. Here you can authorize the application with GitHub to create a base profile.
 
 ### Add a custom domain
 
